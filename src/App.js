@@ -155,7 +155,9 @@ function Message({ msg }) {
 }
 
 export default function App() {
-  const savedKey = localStorage.getItem('gemini_api_key') || '';
+  const savedKey = localStorage.getItem('gemini_api_key') 
+  || process.env.REACT_APP_GEMINI_API_KEY 
+  || '';
   const [messages, setMessages] = useState([{ role: 'bot', text: WELCOME }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
