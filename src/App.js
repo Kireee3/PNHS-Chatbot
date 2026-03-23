@@ -21,11 +21,13 @@ function Avatar({ role }) {
     return (
       <div style={{
         width: 34, height: 34, borderRadius: '50%',
-        background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)',
+        background: 'white',
+        border: '1.5px solid var(--green-light)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0, boxShadow: '0 2px 8px rgba(10,42,94,0.25)',
+        flexShrink: 0, overflow: 'hidden',
+        boxShadow: '0 2px 8px rgba(34,166,72,0.25)',
       }}>
-        <span style={{ color: 'var(--gold)', fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 600 }}>GW</span>
+        <img src="/logo.png" alt="PNHS" style={{ width: 28, height: 28, objectFit: 'contain' }} />
       </div>
     );
   }
@@ -49,7 +51,7 @@ function TypingIndicator() {
       {[0, 1, 2].map(i => (
         <div key={i} style={{
           width: 7, height: 7, borderRadius: '50%',
-          background: 'var(--navy-light)',
+          background: 'var(--green)',
           animation: 'bounce 1.2s infinite',
           animationDelay: `${i * 0.2}s`,
           opacity: 0.7,
@@ -62,6 +64,22 @@ function TypingIndicator() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Auto-converts plain URLs in text to clickable <a> tags
+function linkifyText(text, linkStyle, key) {
+  const urlRegex = /(https?:\/\/[^\s)]+)/g;
+  const parts = text.split(urlRegex);
+  if (parts.length === 1) return text;
+  return (
+    <span key={key}>
+      {parts.map((part, i) =>
+        urlRegex.test(part)
+          ? <a key={i} href={part} target="_blank" rel="noreferrer" style={linkStyle}>{part}</a>
+          : part
+      )}
+    </span>
   );
 }
 
@@ -81,25 +99,46 @@ function Message({ msg }) {
         padding: msg.typing ? '10px 16px' : '11px 16px',
         borderRadius: isUser ? 'var(--radius-lg) var(--radius-lg) 4px var(--radius-lg)' : 'var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px',
         background: isUser
-          ? 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)'
+          ? 'linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%)'
           : 'var(--white)',
         color: isUser ? 'var(--white)' : 'var(--gray-800)',
         fontSize: 14,
         lineHeight: 1.6,
-        boxShadow: isUser ? '0 2px 12px rgba(10,42,94,0.22)' : 'var(--shadow-sm)',
+        boxShadow: isUser ? '0 2px 12px rgba(34,166,72,0.3)' : 'var(--shadow-sm)',
         border: isUser ? 'none' : '1px solid var(--gray-100)',
+        wordBreak: 'break-word',
+        overflowWrap: 'break-word',
       }}>
         {msg.typing ? <TypingIndicator /> : (
           <div className="markdown-body" style={{ color: isUser ? 'var(--white)' : 'inherit' }}>
             <ReactMarkdown
               components={{
-                p: ({ children }) => <p style={{ margin: '0 0 8px', lineHeight: 1.6 }}>{children}</p>,
+                p: ({ children }) => {
+                  // Auto-linkify plain URLs inside paragraphs
+                  const linkStyle = { color: isUser ? '#a8e6b8' : 'var(--green)', textDecoration: 'underline', wordBreak: 'break-all' };
+                  const processed = typeof children === 'string'
+                    ? linkifyText(children, linkStyle)
+                    : Array.isArray(children)
+                      ? children.map((child, i) =>
+                          typeof child === 'string' ? linkifyText(child, linkStyle, i) : child
+                        )
+                      : children;
+                  return <p style={{ margin: '0 0 8px', lineHeight: 1.6 }}>{processed}</p>;
+                },
                 ul: ({ children }) => <ul style={{ margin: '6px 0 8px', paddingLeft: 18 }}>{children}</ul>,
-                li: ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>,
+                li: ({ children }) => {
+                  const linkStyle = { color: isUser ? '#a8e6b8' : 'var(--green)', textDecoration: 'underline', wordBreak: 'break-all' };
+                  const processed = Array.isArray(children)
+                    ? children.map((child, i) =>
+                        typeof child === 'string' ? linkifyText(child, linkStyle, i) : child
+                      )
+                    : children;
+                  return <li style={{ marginBottom: 4 }}>{processed}</li>;
+                },
                 strong: ({ children }) => <strong style={{ fontWeight: 600 }}>{children}</strong>,
                 a: ({ href, children }) => (
                   <a href={href} target="_blank" rel="noreferrer"
-                    style={{ color: isUser ? 'var(--gold-light)' : 'var(--navy-light)', textDecoration: 'underline' }}>
+                    style={{ color: isUser ? '#a8e6b8' : 'var(--green)', textDecoration: 'underline', wordBreak: 'break-all' }}>
                     {children}
                   </a>
                 ),
@@ -178,15 +217,15 @@ export default function App() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #0a1e4a 0%, #0d2d6e 40%, #1a3f80 100%)',
+      background: 'linear-gradient(160deg, #0d4a20 0%, #145e2a 40%, #1a7d38 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: 16,
     }}>
       {/* Decorative bg circles */}
-      <div style={{ position:'fixed', top:-80, right:-80, width:320, height:320, borderRadius:'50%', background:'rgba(240,165,0,0.07)', pointerEvents:'none' }} />
-      <div style={{ position:'fixed', bottom:-100, left:-60, width:280, height:280, borderRadius:'50%', background:'rgba(255,255,255,0.04)', pointerEvents:'none' }} />
+      <div style={{ position:'fixed', top:-80, right:-80, width:320, height:320, borderRadius:'50%', background:'rgba(44,201,90,0.1)', pointerEvents:'none' }} />
+      <div style={{ position:'fixed', bottom:-100, left:-60, width:280, height:280, borderRadius:'50%', background:'rgba(255,255,255,0.05)', pointerEvents:'none' }} />
 
       <div style={{
         width: '100%',
@@ -203,7 +242,7 @@ export default function App() {
 
         {/* HEADER */}
         <div style={{
-          background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%)',
+          background: 'linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%)',
           padding: '18px 20px',
           display: 'flex',
           alignItems: 'center',
@@ -213,12 +252,12 @@ export default function App() {
         }}>
           <div style={{
             width: 50, height: 50, borderRadius: '50%',
-            background: 'rgba(255,255,255,0.12)',
-            border: '2px solid var(--gold)',
+            background: 'rgba(255,255,255,0.95)',
+            border: '2px solid rgba(255,255,255,0.6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            flexShrink: 0, overflow: 'hidden',
           }}>
-            <span style={{ color: 'var(--gold)', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600 }}>GW</span>
+            <img src="/logo.png" alt="PNHS Logo" style={{ width: 44, height: 44, objectFit: 'contain' }} />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ color: 'var(--white)', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, letterSpacing: 0.3 }}>
@@ -273,7 +312,7 @@ export default function App() {
               />
               <button onClick={saveApiKey} style={{
                 padding: '7px 14px', fontSize: 13, fontWeight: 500,
-                background: 'var(--navy)', color: 'white',
+                background: 'var(--green)', color: 'white',
                 border: 'none', borderRadius: 8, cursor: 'pointer',
               }}>Save</button>
               {apiKey && (
@@ -317,15 +356,15 @@ export default function App() {
                 disabled={loading}
                 style={{
                   fontSize: 12, padding: '5px 12px',
-                  border: '1px solid var(--navy-light)',
-                  color: 'var(--navy)',
+                  border: '1px solid var(--green)',
+                  color: 'var(--green)',
                   borderRadius: 20, cursor: 'pointer',
                   background: 'transparent',
                   transition: 'all 0.15s',
                   fontFamily: 'var(--font-body)',
                 }}
-                onMouseEnter={e => { e.target.style.background = 'var(--navy)'; e.target.style.color = 'white'; }}
-                onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--navy)'; }}
+                onMouseEnter={e => { e.target.style.background = 'var(--green)'; e.target.style.color = 'white'; }}
+                onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = 'var(--green)'; }}
               >
                 {s}
               </button>
@@ -364,7 +403,7 @@ export default function App() {
               maxHeight: 100,
               overflow: 'auto',
             }}
-            onFocus={e => e.target.style.borderColor = 'var(--navy-light)'}
+            onFocus={e => e.target.style.borderColor = 'var(--green)'}
             onBlur={e => e.target.style.borderColor = 'var(--gray-200)'}
           />
           <button
@@ -375,11 +414,11 @@ export default function App() {
               borderRadius: '50%',
               background: loading || !input.trim()
                 ? 'var(--gray-200)'
-                : 'linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%)',
+                : 'linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%)',
               border: 'none', cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.2s', flexShrink: 0,
-              boxShadow: loading || !input.trim() ? 'none' : '0 2px 12px rgba(10,42,94,0.3)',
+              boxShadow: loading || !input.trim() ? 'none' : '0 2px 12px rgba(34,166,72,0.4)',
             }}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
