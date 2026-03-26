@@ -13,19 +13,6 @@ A custom AI-powered chatbot for **Parañaque National High School – Main**, bu
 - Typing indicator while fetching responses
 - Fully responsive for mobile and desktop
 
-## Customization
-
-### Update school information
-Edit `src/schoolContext.js` to add, remove, or update any school details.
-
-### Change the Gemini model
-In `src/geminiService.js`, change the model in `API_URL`:
-- `gemini-2.0-flash` (default, fast & free)
-- `gemini-1.5-pro` (more capable, slower)
-
-### Update quick-reply chips
-In `src/App.js`, edit the `SUGGESTIONS` array at the top.
-
 ## Built With
 - [React](https://reactjs.org/)
 - [Google Gemini API](https://aistudio.google.com/)
